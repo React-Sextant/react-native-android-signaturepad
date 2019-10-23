@@ -1,0 +1,57 @@
+description = 'android-signaturepad'
+
+buildscript {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.4'
+    }
+}
+
+repositories {
+    maven { url 'https://maven.aliyun.com/repository/jcenter' }
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    mavenCentral()
+    maven { url 'http://repo1.maven.org/maven2' }
+}
+
+apply plugin: 'com.android.library'
+
+def _ext = rootProject.ext
+
+def _reactNativeVersion = _ext.has('reactNative') ? _ext.reactNative : '+'
+def _compileSdkVersion = _ext.has('compileSdkVersion') ? _ext.compileSdkVersion : 28
+def _buildToolsVersion = _ext.has('buildToolsVersion') ? _ext.buildToolsVersion : '28.0.0'
+def _minSdkVersion = _ext.has('minSdkVersion') ? _ext.minSdkVersion : 16
+def _targetSdkVersion = _ext.has('targetSdkVersion') ? _ext.targetSdkVersion : 22
+def _supportLibVersion = _ext.has('supportLibVersion') ? _ext.supportLibVersion : '27.1.1'
+
+android {
+    compileSdkVersion _compileSdkVersion
+    buildToolsVersion _buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion _minSdkVersion
+        targetSdkVersion _targetSdkVersion
+    }
+
+    lintOptions {
+        abortOnError true
+    }
+}
+
+configurations {
+    deployerJars
+}
+
+dependencies {
+    compile "com.facebook.react:react-native:${_reactNativeVersion}"
+
+    compile 'com.github.gcacace:signature-pad:1.2.1'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.android.support:appcompat-v7:${_supportLibVersion}"
+    compile "com.android.support:support-v4:${_supportLibVersion}"
+}
