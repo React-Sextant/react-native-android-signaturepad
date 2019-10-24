@@ -6,11 +6,19 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/React-Sextant//react-native-android-signaturepad.git"
+  },
   "keywords": [
     "react",
     "native",
     "android-signaturepad"
   ],
-  "author": "1uokun",
-  "license": "ISC"
+  "author": "1498710037@qq.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/React-Sextant//react-native-android-signaturepad/issues"
+  },
+  "homepage": "https://github.com/React-Sextant//react-native-android-signaturepad#readme"
 }

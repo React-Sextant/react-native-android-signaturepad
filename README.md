@@ -6,9 +6,9 @@ Only in Android
 ```jsx harmony
 import React from 'react'
 import {Button,View} from 'react-native'
-import SignaturePad from './signaturePad'
+import SignaturePad from 'react-native-android-signaturepad'
 
-export default class N extends React.Component {
+export default class extends React.Component {
     clear=()=>{
         this.refs._signaturePad.clear();
     };
