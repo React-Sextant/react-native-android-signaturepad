@@ -106,4 +106,46 @@ public class SignatureModule extends ReactContextBaseJavaModule {
         return Base64.encodeToString(imgBytes, Base64.DEFAULT);
     }
 
+    @ReactMethod
+    public void getTransparentSignatureBitmap(final int viewTag, final Promise promise){
+
+        final ReactApplicationContext context = getReactApplicationContext();
+        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+        uiManager.addUIBlock(new UIBlock() {
+            @Override
+            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+                final SignaturePadView signaturePad;
+
+                try {
+                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+                    promise.resolve(bitmapToString(signaturePad.getTransparentSignatureBitmap()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    promise.reject(e.getMessage());
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void getSignatureSvg(final int viewTag, final Promise promise){
+
+        final ReactApplicationContext context = getReactApplicationContext();
+        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+        uiManager.addUIBlock(new UIBlock() {
+            @Override
+            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+                final SignaturePadView signaturePad;
+
+                try {
+                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+                    promise.resolve(signaturePad.getSignatureSvg());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    promise.reject(e.getMessage());
+                }
+            }
+        });
+    }
+
 }

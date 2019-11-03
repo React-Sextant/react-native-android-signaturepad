@@ -40,3 +40,13 @@ export default class extends React.Component {
 
 # Usage
 https://github.com/gcacace/android-signaturepad
+
+# 其他
+使用`<Image />`渲染bitmap记得添加前缀`'data:image/png;base64,'`以作为`base64`格式数据
+```jsx harmony
+
+this.setState({bitmap:await this.refs._signaturePad.getTransparentSignatureBitmap()})
+
+<Image source={{uri:'data:image/png;base64,'+bitmap}}
+```
+

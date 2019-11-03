@@ -34,12 +34,22 @@ public class SignaturePadManager extends SimpleViewManager<SignaturePadView> {
     }
 
     @ReactProp(name = "penMaxWidth")
-    public void setMaxWidth(SignaturePadView signaturePad, int maxWidth) {
+    public void setMaxWidth(SignaturePadView signaturePad, float maxWidth) {
         signaturePad.setMaxWidth(maxWidth);
     }
 
     @ReactProp(name = "penMinWidth")
-    public void setMinWidth(SignaturePadView signaturePad, int minWidth) {
+    public void setMinWidth(SignaturePadView signaturePad, float minWidth) {
         signaturePad.setMinWidth(minWidth);
+    }
+
+    @ReactProp(name = "penColor")
+    public void setPenColor(SignaturePadView signaturePad, int color) {
+        signaturePad.setPenColor(color);
+    }
+
+    @ReactProp(name = "velocityFilterWeight")
+    public void setVelocityFilterWeight(SignaturePadView signaturePad, float weight) {
+        signaturePad.setVelocityFilterWeight(weight);
     }
 }
