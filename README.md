@@ -1,8 +1,13 @@
 # react-native-android-signaturepad
 Integrate https://github.com/gcacace/android-signaturepad into `react-native/android`
 
+# Install <a href="https://npmjs.org/package/react-native-android-signaturepad"><img alt="npm version" src="http://img.shields.io/npm/v/react-native-android-signaturepad.svg?style=flat-square"></a> <a href="https://npmjs.org/package/react-native-android-signaturepad"><img alt="npm version" src="http://img.shields.io/npm/dm/react-native-android-signaturepad.svg?style=flat-square"></a>
+```bash
+npm i react-native-android-signaturepad
+```
+
 # Demo
-Only in Android
+#### ONLY IN Android
 ```jsx harmony
 import React from 'react'
 import {Button,View} from 'react-native'
@@ -31,6 +36,7 @@ export default class extends React.Component {
         )
     }
 }
-
-
 ```
+
+# Usage
+https://github.com/gcacace/android-signaturepad

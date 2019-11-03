@@ -1,6 +1,6 @@
 {
   "name": "react-native-android-signaturepad",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Integrate https://github.com/gcacace/android-signaturepad into `react-native/android`",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/React-Sextant//react-native-android-signaturepad.git"
+    "url": "git+https://github.com/React-Sextant/react-native-android-signaturepad.git"
   },
   "keywords": [
     "react",
@@ -18,7 +18,7 @@
   "author": "1498710037@qq.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/React-Sextant//react-native-android-signaturepad/issues"
+    "url": "https://github.com/React-Sextant/react-native-android-signaturepad/issues"
   },
-  "homepage": "https://github.com/React-Sextant//react-native-android-signaturepad#readme"
+  "homepage": "https://github.com/React-Sextant/react-native-android-signaturepad#readme"
 }
