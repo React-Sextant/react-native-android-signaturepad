@@ -1,4 +1,4 @@
-package com.github.react.sextant;
+package com.github.ReactSextant.signaturepad;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
