@@ -293,7 +293,6 @@ public class SignaturePadView extends View {
                 isTouchMove = true;
                 resetDirtyRect(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
-                setIsEmpty(false);
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -302,6 +301,7 @@ public class SignaturePadView extends View {
                     resetDirtyRect(eventX, eventY);
                     addPoint(getNewPoint(eventX, eventY));
                     getParent().requestDisallowInterceptTouchEvent(true);
+                    setIsEmpty(false);
                     break;
                 } else {
                     return false;
