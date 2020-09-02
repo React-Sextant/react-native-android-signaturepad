@@ -6,6 +6,14 @@ Integrate https://github.com/gcacace/android-signaturepad into `react-native/and
 npm i react-native-android-signaturepad
 ```
 
+# Changelog
+
+ - **1.0.3**
+ 
+   1.添加 `erasing={boolean}`橡皮擦功能
+   
+   2.添加`initBitmap={string}`初始化时会渲染传入的bitmap
+
 # Demo
 #### ONLY IN Android
 ```jsx harmony
@@ -14,6 +22,10 @@ import {Button,View} from 'react-native'
 import SignaturePad from 'react-native-android-signaturepad'
 
 export default class extends React.Component {
+    state={
+        erasing:false
+    };
+
     clear=()=>{
         this.refs._signaturePad.clear();
     };
@@ -26,6 +38,7 @@ export default class extends React.Component {
                     style={{flex:1,backgroundColor:'yellow'}}
                     penMaxWidth={7}
                     penMinWidth={3}
+                    erasing={this.state.erasing}
                     onChange={(event)=>{
                         let message = event.nativeEvent.message;
                         console.log(message)

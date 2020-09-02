@@ -48,6 +48,11 @@ public class SignaturePadManager extends SimpleViewManager<SignaturePadView> {
         signaturePad.setPenColor(color);
     }
 
+    @ReactProp(name = "erasing")
+    public void setErasing(SignaturePadView signaturePad, boolean erasing) {
+        signaturePad.setErasing(erasing);
+    }
+
     @ReactProp(name = "velocityFilterWeight")
     public void setVelocityFilterWeight(SignaturePadView signaturePad, float weight) {
         signaturePad.setVelocityFilterWeight(weight);

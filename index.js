@@ -15,6 +15,10 @@ export default class SignaturePad extends React.PureComponent {
         penColor: "#000000"
     };
 
+    componentDidMount() {
+        typeof this.props.initBitmap === "string"&&this.setSignatureBitmap(this.props.initBitmap)
+    }
+
 
     _setReference = (ref: ?Object) => {
         if (ref) {
@@ -38,11 +42,11 @@ export default class SignaturePad extends React.PureComponent {
 
     getTransparentSignatureBitmap=async ()=>{
         return await SignatureModule.getTransparentSignatureBitmap(this._signaturePadHandle)
-    }
+    };
 
     getSignatureSvg=async ()=>{
         return await SignatureModule.getSignatureSvg(this._signaturePadHandle)
-    }
+    };
 
     render(){
         return (
