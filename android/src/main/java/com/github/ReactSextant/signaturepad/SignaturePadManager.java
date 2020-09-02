@@ -53,6 +53,11 @@ public class SignaturePadManager extends SimpleViewManager<SignaturePadView> {
         signaturePad.setErasing(erasing);
     }
 
+    @ReactProp(name = "shouldClearOnDoubleClick")
+    public void setClearOnDoubleClick(SignaturePadView signaturePad, boolean shouldClearOnDoubleClick) {
+        signaturePad.setClearOnDoubleClick(shouldClearOnDoubleClick);
+    }
+
     @ReactProp(name = "velocityFilterWeight")
     public void setVelocityFilterWeight(SignaturePadView signaturePad, float weight) {
         signaturePad.setVelocityFilterWeight(weight);

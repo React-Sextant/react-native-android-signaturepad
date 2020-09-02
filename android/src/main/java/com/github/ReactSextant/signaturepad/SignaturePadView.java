@@ -11,7 +11,10 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -22,6 +25,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
+import com.github.gcacace.signaturepad.R;
 import com.github.gcacace.signaturepad.utils.Bezier;
 import com.github.gcacace.signaturepad.utils.ControlTimedPoints;
 import com.github.gcacace.signaturepad.utils.SvgBuilder;
@@ -40,11 +44,13 @@ public class SignaturePadView extends View {
     //View state
     private List<TimedPoint> mPoints;
     private boolean mIsEmpty;
+    private Boolean mHasEditState;
     private float mLastTouchX;
     private float mLastTouchY;
     private float mLastVelocity;
     private float mLastWidth;
     private RectF mDirtyRect;
+    private Bitmap mBitmapSavedState;
 
     private final SvgBuilder mSvgBuilder = new SvgBuilder();
 
@@ -60,10 +66,8 @@ public class SignaturePadView extends View {
     private OnSignedListener mOnSignedListener;
     private boolean mClearOnDoubleClick;
 
-    //Click values
-    private long mFirstClick;
-    private int mCountClick;
-    private static final int DOUBLE_CLICK_DELAY_MS = 200;
+    //Double click detector
+    private GestureDetector mGestureDetector;
 
     //Default attribute values
     private final int DEFAULT_ATTR_PEN_MIN_WIDTH_PX = 3;
@@ -105,7 +109,7 @@ public class SignaturePadView extends View {
         //Dirty rectangle to update only the changed portion of the view
         mDirtyRect = new RectF();
 
-        clear();
+        clearView();
 
         this.setOnSignedListener(new OnSignedListener() {
 
@@ -146,6 +150,36 @@ public class SignaturePadView extends View {
                         event);
             }
         });
+
+        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                return onDoubleClick();
+            }
+        });
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("superState", super.onSaveInstanceState());
+        if (this.mHasEditState == null || this.mHasEditState) {
+            this.mBitmapSavedState = this.getTransparentSignatureBitmap();
+        }
+        bundle.putParcelable("signatureBitmap", this.mBitmapSavedState);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            this.setSignatureBitmap((Bitmap) bundle.getParcelable("signatureBitmap"));
+            this.mBitmapSavedState = bundle.getParcelable("signatureBitmap");
+            state = bundle.getParcelable("superState");
+        }
+        this.mHasEditState = false;
+        super.onRestoreInstanceState(state);
     }
 
     /**
@@ -162,8 +196,22 @@ public class SignaturePadView extends View {
         }
     }
 
-    public void setErasing(boolean b){
-        this.isErasing = b;
+    /**
+     * Support translucent colors and eraser.
+     *
+     * @param erasing the isErasing.
+     */
+    public void setErasing(boolean erasing){
+        this.isErasing = erasing;
+    }
+
+    /**
+     * Support should clear on DoubleClick.
+     *
+     * @param shouldClearOnDoubleClick the mClearOnDoubleClick.
+     */
+    public void setClearOnDoubleClick(boolean shouldClearOnDoubleClick){
+        mClearOnDoubleClick = shouldClearOnDoubleClick;
     }
 
     /**
@@ -202,7 +250,7 @@ public class SignaturePadView extends View {
         mVelocityFilterWeight = velocityFilterWeight;
     }
 
-    public void clear() {
+    public void clearView() {
         mSvgBuilder.clear();
         mPoints = new ArrayList<>();
         mLastVelocity = 0;
@@ -218,6 +266,11 @@ public class SignaturePadView extends View {
         invalidate();
     }
 
+    public void clear() {
+        this.clearView();
+        this.mHasEditState = true;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!isEnabled())
@@ -230,7 +283,7 @@ public class SignaturePadView extends View {
             case MotionEvent.ACTION_DOWN:
                 getParent().requestDisallowInterceptTouchEvent(true);
                 mPoints.clear();
-                if (isDoubleClick()) break;
+                if (mGestureDetector.onTouchEvent(event)) break;
                 mLastTouchX = eventX;
                 mLastTouchY = eventY;
                 addPoint(getNewPoint(eventX, eventY));
@@ -240,6 +293,7 @@ public class SignaturePadView extends View {
                 isTouchMove = true;
                 resetDirtyRect(eventX, eventY);
                 addPoint(getNewPoint(eventX, eventY));
+                setIsEmpty(false);
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -248,7 +302,6 @@ public class SignaturePadView extends View {
                     resetDirtyRect(eventX, eventY);
                     addPoint(getNewPoint(eventX, eventY));
                     getParent().requestDisallowInterceptTouchEvent(true);
-                    setIsEmpty(false);
                     break;
                 } else {
                     return false;
@@ -257,6 +310,7 @@ public class SignaturePadView extends View {
             default:
                 return false;
         }
+
         //invalidate();
         invalidate(
                 (int) (mDirtyRect.left - mMaxWidth),
@@ -265,9 +319,7 @@ public class SignaturePadView extends View {
                 (int) (mDirtyRect.bottom + mMaxWidth));
 
         return true;
-
     }
-
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -302,7 +354,7 @@ public class SignaturePadView extends View {
     public void setSignatureBitmap(final Bitmap signature) {
         // View was laid out...
         if (ViewCompat.isLaidOut(this)) {
-            clear();
+            clearView();
             ensureSignatureBitmap();
 
             RectF tempSrc = new RectF();
@@ -429,21 +481,10 @@ public class SignaturePadView extends View {
         return Bitmap.createBitmap(mSignatureBitmap, xMin, yMin, xMax - xMin, yMax - yMin);
     }
 
-    private boolean isDoubleClick() {
+    private boolean onDoubleClick() {
         if (mClearOnDoubleClick) {
-            if (mFirstClick != 0 && System.currentTimeMillis() - mFirstClick > DOUBLE_CLICK_DELAY_MS) {
-                mCountClick = 0;
-            }
-            mCountClick++;
-            if (mCountClick == 1) {
-                mFirstClick = System.currentTimeMillis();
-            } else if (mCountClick == 2) {
-                long lastClick = System.currentTimeMillis();
-                if (lastClick - mFirstClick < DOUBLE_CLICK_DELAY_MS) {
-                    this.clear();
-                    return true;
-                }
-            }
+            this.clearView();
+            return true;
         }
         return false;
     }
@@ -456,7 +497,7 @@ public class SignaturePadView extends View {
             timedPoint = new TimedPoint();
         } else {
             // Get point from cache
-            timedPoint = mPointsCache.remove(mCacheSize-1);
+            timedPoint = mPointsCache.remove(mCacheSize - 1);
         }
 
         return timedPoint.set(x, y);
@@ -517,6 +558,7 @@ public class SignaturePadView extends View {
             TimedPoint firstPoint = mPoints.get(0);
             mPoints.add(getNewPoint(firstPoint.x, firstPoint.y));
         }
+        this.mHasEditState = true;
     }
 
     private void addBezier(Bezier curve, float startWidth, float endWidth) {
@@ -524,7 +566,7 @@ public class SignaturePadView extends View {
         ensureSignatureBitmap();
         float originalWidth = mPaint.getStrokeWidth();
         float widthDelta = endWidth - startWidth;
-        float drawSteps = (float) Math.floor(curve.length());
+        float drawSteps = (float) Math.ceil(curve.length());
 
         for (int i = 0; i < drawSteps; i++) {
             // Calculate the Bezier (x, y) coordinate for this step.
@@ -554,7 +596,6 @@ public class SignaturePadView extends View {
             }else {
                 mSignatureBitmapCanvas.drawPoint(x, y, mPaint);
             }
-
             expandDirtyRect(x, y);
         }
 
@@ -646,14 +687,20 @@ public class SignaturePadView extends View {
         }
     }
 
-    private int convertDpToPx(float dp){
+    private int convertDpToPx(float dp) {
         return Math.round(getContext().getResources().getDisplayMetrics().density * dp);
     }
 
     public interface OnSignedListener {
         void onStartSigning();
+
         void onSigned();
+
         void onClear();
+    }
+
+    public List<TimedPoint> getPoints() {
+        return mPoints;
     }
 
     public void undo(Callback callback){
