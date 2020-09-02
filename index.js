@@ -1,8 +1,8 @@
 /* 测试用 */
 
 import React from 'react'
-import {requireNativeComponent,NativeModules,findNodeHandle} from 'react-native'
-import processColor from 'react-native/Libraries/StyleSheet/processColor'
+import {requireNativeComponent,NativeModules,findNodeHandle,processColor} from 'react-native'
+import normalizeColor from 'normalize-css-color';
 
 const SignatureView = requireNativeComponent('SignaturePad', SignaturePad, {
     nativeOnly: {onChange: true},
@@ -48,12 +48,16 @@ export default class SignaturePad extends React.PureComponent {
         return await SignatureModule.getSignatureSvg(this._signaturePadHandle)
     };
 
+    undo=(callback)=>{
+        SignatureModule.undo(this._signaturePadHandle,callback)
+    };
+
     render(){
         return (
             <SignatureView
                 ref={this._setReference}
                 {...this.props}
-                penColor={processColor(this.props.penColor)}
+                penColor={processColor(normalizeColor(this.props.penColor))}
             />
         )
     }

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -35,6 +36,9 @@ public class SignatureModule extends ReactContextBaseJavaModule {
 
                 try {
                     signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+                    if(signaturePad.mBitmapCaches!=null){
+                        signaturePad.mBitmapCaches.clear();
+                    }
                     signaturePad.clear();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -100,6 +104,7 @@ public class SignatureModule extends ReactContextBaseJavaModule {
     }
 
     String bitmapToString(Bitmap bitmap) {
+        if(bitmap == null) return "";
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] imgBytes = baos.toByteArray();
@@ -118,7 +123,11 @@ public class SignatureModule extends ReactContextBaseJavaModule {
 
                 try {
                     signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-                    promise.resolve(bitmapToString(signaturePad.getTransparentSignatureBitmap()));
+                    if(signaturePad.mBitmapCaches.size()==0){
+                        promise.resolve("");
+                    }else {
+                        promise.resolve(bitmapToString(signaturePad.getTransparentSignatureBitmap()));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     promise.reject(e.getMessage());
@@ -143,6 +152,25 @@ public class SignatureModule extends ReactContextBaseJavaModule {
                 } catch (Exception e) {
                     e.printStackTrace();
                     promise.reject(e.getMessage());
+                }
+            }
+        });
+    }
+
+    @ReactMethod
+    public void undo(final int viewTag, final Callback callback){
+        final ReactApplicationContext context = getReactApplicationContext();
+        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+        uiManager.addUIBlock(new UIBlock() {
+            @Override
+            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+                final SignaturePadView signaturePad;
+
+                try {
+                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+                    signaturePad.undo(callback);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });

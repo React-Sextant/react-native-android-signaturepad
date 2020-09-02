@@ -17,11 +17,11 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
-import com.github.gcacace.signaturepad.R;
 import com.github.gcacace.signaturepad.utils.Bezier;
 import com.github.gcacace.signaturepad.utils.ControlTimedPoints;
 import com.github.gcacace.signaturepad.utils.SvgBuilder;
@@ -75,6 +75,7 @@ public class SignaturePadView extends View {
     private Paint mPaint = new Paint();
     private Bitmap mSignatureBitmap = null;
     private Canvas mSignatureBitmapCanvas = null;
+    public ArrayList<Bitmap> mBitmapCaches =  new ArrayList<Bitmap>();
 
     public SignaturePadView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -130,6 +131,7 @@ public class SignaturePadView extends View {
                         getId(),
                         "topChange",
                         event);
+                mBitmapCaches.add(getTransparentSignatureBitmap());
             }
 
             @Override
@@ -652,5 +654,20 @@ public class SignaturePadView extends View {
         void onStartSigning();
         void onSigned();
         void onClear();
+    }
+
+    public void undo(Callback callback){
+        if(mBitmapCaches.size()>0){
+            callback.invoke("onUndo");
+        }else {
+            callback.invoke("onClear");
+        }
+        if(mBitmapCaches.size() < 2){
+            this.clear();
+            mBitmapCaches.clear(); //Keep stay with mSignaturePad.clear()
+        }else {
+            mBitmapCaches.remove(mBitmapCaches.size()-1);
+            this.setSignatureBitmap(mBitmapCaches.remove(mBitmapCaches.size()-1));
+        }
     }
 }
