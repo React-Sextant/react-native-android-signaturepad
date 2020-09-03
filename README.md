@@ -12,8 +12,18 @@ npm i react-native-android-signaturepad
  
    1.添加 `erasing={boolean}`橡皮擦功能
    
-   2.添加`initBitmap={string}`初始化时会渲染传入的bitmap
+   2.<del>添加`initBitmap={string}`初始化时会渲染传入的bitmap<del>
 
+ - **2.0.0**
+  
+   1.添加`undo()`回退功能
+   2.添加`undo`props控制回退功能的启用（默认为true，可能会占用一定内存）
+   
+ - **Future**
+ 
+   1.Add BackgroundImage support
+   
+   
 # Demo
 #### ONLY IN Android
 ```jsx harmony
@@ -30,6 +40,10 @@ export default class extends React.Component {
         this.refs._signaturePad.clear();
     };
 
+    undo=()=>{
+        this.refs._signaturePad.undo(callback:options);
+    };
+
     render(){
         return (
             <View style={{flex:1}}>
@@ -38,6 +52,7 @@ export default class extends React.Component {
                     style={{flex:1,backgroundColor:'yellow'}}
                     penMaxWidth={7}
                     penMinWidth={3}
+                    undo={true}
                     erasing={this.state.erasing}
                     onChange={(event)=>{
                         let message = event.nativeEvent.message;
@@ -45,6 +60,7 @@ export default class extends React.Component {
                     }}
                 />
                 <Button title={"clear"} onPress={this.clear}/>
+                <Button title={"undo"} onPress={this.undo}/>
             </View>
         )
     }

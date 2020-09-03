@@ -53,6 +53,11 @@ public class SignaturePadManager extends SimpleViewManager<SignaturePadView> {
         signaturePad.setErasing(erasing);
     }
 
+    @ReactProp(name = "undo")
+    public void setUndo(SignaturePadView signaturePad, boolean undo) {
+        signaturePad.setUndo(undo);
+    }
+
     @ReactProp(name = "shouldClearOnDoubleClick")
     public void setClearOnDoubleClick(SignaturePadView signaturePad, boolean shouldClearOnDoubleClick) {
         signaturePad.setClearOnDoubleClick(shouldClearOnDoubleClick);

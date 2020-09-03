@@ -40,6 +40,7 @@ public class SignaturePadView extends View {
 
     private boolean isTouchMove = false;    //优化单击事件不触发onSigned()
     private boolean isErasing = false;      //橡皮擦模式
+    static boolean  isUndo = true;          //是否允许回退
 
     //View state
     private List<TimedPoint> mPoints;
@@ -135,7 +136,10 @@ public class SignaturePadView extends View {
                         getId(),
                         "topChange",
                         event);
-//                mBitmapCaches.add(getTransparentSignatureBitmap());
+
+                if (isUndo) {
+                    mBitmapCaches.add(Bitmap.createBitmap(getTransparentSignatureBitmap()));
+                }
             }
 
             @Override
@@ -203,6 +207,18 @@ public class SignaturePadView extends View {
      */
     public void setErasing(boolean erasing){
         this.isErasing = erasing;
+    }
+
+    /**
+     * Support undo.
+     *
+     * @param undo the static.isUndo enable.
+     */
+    public void setUndo(boolean undo){
+        isUndo = undo;
+        if(!undo){
+            mBitmapCaches.clear();
+        }
     }
 
     /**
@@ -704,17 +720,19 @@ public class SignaturePadView extends View {
     }
 
     public void undo(Callback callback){
-        if(mBitmapCaches.size()>0){
-            callback.invoke("onUndo");
-        }else {
-            callback.invoke("onClear");
-        }
-        if(mBitmapCaches.size() < 2){
-            this.clear();
-            mBitmapCaches.clear(); //Keep stay with mSignaturePad.clear()
-        }else {
-            mBitmapCaches.remove(mBitmapCaches.size()-1);
-            this.setSignatureBitmap(mBitmapCaches.remove(mBitmapCaches.size()-1));
+        if(isUndo){
+            if(mBitmapCaches.size()>0){
+                callback.invoke("onUndo");
+                if(mBitmapCaches.size() < 2){
+                    this.clear();
+                    mBitmapCaches.clear(); //Keep stay with mSignaturePad.clear()
+                }else {
+                    mBitmapCaches.remove(mBitmapCaches.size()-1);
+                    this.setSignatureBitmap(mBitmapCaches.remove(mBitmapCaches.size()-1));
+                }
+            }else {
+                callback.invoke("onClear");
+            }
         }
     }
 }

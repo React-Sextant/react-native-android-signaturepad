@@ -123,11 +123,7 @@ public class SignatureModule extends ReactContextBaseJavaModule {
 
                 try {
                     signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-                    if(signaturePad.mBitmapCaches.size()==0){
-                        promise.resolve("");
-                    }else {
-                        promise.resolve(bitmapToString(signaturePad.getTransparentSignatureBitmap()));
-                    }
+                    promise.resolve(bitmapToString(signaturePad.getTransparentSignatureBitmap()));
                 } catch (Exception e) {
                     e.printStackTrace();
                     promise.reject(e.getMessage());
@@ -157,23 +153,23 @@ public class SignatureModule extends ReactContextBaseJavaModule {
         });
     }
 
-//    @ReactMethod
-//    public void undo(final int viewTag, final Callback callback){
-//        final ReactApplicationContext context = getReactApplicationContext();
-//        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-//        uiManager.addUIBlock(new UIBlock() {
-//            @Override
-//            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-//                final SignaturePadView signaturePad;
-//
-//                try {
-//                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-//                    signaturePad.undo(callback);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//    }
+    @ReactMethod
+    public void undo(final int viewTag, final Callback callback){
+        final ReactApplicationContext context = getReactApplicationContext();
+        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+        uiManager.addUIBlock(new UIBlock() {
+            @Override
+            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+                final SignaturePadView signaturePad;
+
+                try {
+                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+                    signaturePad.undo(callback);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
 }

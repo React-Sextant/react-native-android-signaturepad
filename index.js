@@ -12,13 +12,9 @@ const SignatureModule = NativeModules.SignatureModule;
 export default class SignaturePad extends React.PureComponent {
     static defaultProps: Object = {
         _signaturePadHandle: Number,
+        undo:true,
         penColor: "#000000"
     };
-
-    componentDidMount() {
-        typeof this.props.initBitmap === "string"&&this.setSignatureBitmap(this.props.initBitmap)
-    }
-
 
     _setReference = (ref: ?Object) => {
         if (ref) {
@@ -48,9 +44,9 @@ export default class SignaturePad extends React.PureComponent {
         return await SignatureModule.getSignatureSvg(this._signaturePadHandle)
     };
 
-    // undo=(callback)=>{
-    //     SignatureModule.undo(this._signaturePadHandle,callback)
-    // };
+    undo=(callback=Function)=>{
+        SignatureModule.undo(this._signaturePadHandle,callback)
+    };
 
     render(){
         return (
