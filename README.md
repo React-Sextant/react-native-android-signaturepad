@@ -8,7 +8,7 @@ npm i react-native-android-signaturepad
 
 # Changelog
 
- - **1.0.3**
+ - **1.0.4**
  
    1.添加 `erasing={boolean}`橡皮擦功能
    
