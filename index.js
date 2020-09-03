@@ -48,9 +48,9 @@ export default class SignaturePad extends React.PureComponent {
         return await SignatureModule.getSignatureSvg(this._signaturePadHandle)
     };
 
-    undo=(callback)=>{
-        SignatureModule.undo(this._signaturePadHandle,callback)
-    };
+    // undo=(callback)=>{
+    //     SignatureModule.undo(this._signaturePadHandle,callback)
+    // };
 
     render(){
         return (

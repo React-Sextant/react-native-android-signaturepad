@@ -135,7 +135,7 @@ public class SignaturePadView extends View {
                         getId(),
                         "topChange",
                         event);
-                mBitmapCaches.add(getTransparentSignatureBitmap());
+//                mBitmapCaches.add(getTransparentSignatureBitmap());
             }
 
             @Override

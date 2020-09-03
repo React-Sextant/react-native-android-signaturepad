@@ -157,23 +157,23 @@ public class SignatureModule extends ReactContextBaseJavaModule {
         });
     }
 
-    @ReactMethod
-    public void undo(final int viewTag, final Callback callback){
-        final ReactApplicationContext context = getReactApplicationContext();
-        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-        uiManager.addUIBlock(new UIBlock() {
-            @Override
-            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
-                final SignaturePadView signaturePad;
-
-                try {
-                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-                    signaturePad.undo(callback);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
+//    @ReactMethod
+//    public void undo(final int viewTag, final Callback callback){
+//        final ReactApplicationContext context = getReactApplicationContext();
+//        UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
+//        uiManager.addUIBlock(new UIBlock() {
+//            @Override
+//            public void execute(NativeViewHierarchyManager nativeViewHierarchyManager) {
+//                final SignaturePadView signaturePad;
+//
+//                try {
+//                    signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
+//                    signaturePad.undo(callback);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
 
 }
