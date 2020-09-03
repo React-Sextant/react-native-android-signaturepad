@@ -1,6 +1,6 @@
 {
   "name": "react-native-android-signaturepad",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "Integrate https://github.com/gcacace/android-signaturepad into `react-native/android`",
   "main": "index.js",
   "scripts": {
