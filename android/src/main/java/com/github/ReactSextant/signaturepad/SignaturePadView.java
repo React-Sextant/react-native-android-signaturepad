@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -35,6 +36,7 @@ import com.github.gcacace.signaturepad.view.ViewTreeObserverCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SignaturePadView extends View {
 
@@ -138,7 +140,7 @@ public class SignaturePadView extends View {
                         event);
 
                 if (isUndo) {
-                    mBitmapCaches.add(Bitmap.createBitmap(getTransparentSignatureBitmap()));
+                    Paint2.save(); //存储当前操作的Paint2.list
                 }
             }
 
@@ -609,8 +611,14 @@ public class SignaturePadView extends View {
                 Paint paint = new Paint(mPaint);
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
                 mSignatureBitmapCanvas.drawPoint(x, y, paint);
+                if(isUndo){
+                    Paint2.add(new Paint2(x,y,paint));
+                }
             }else {
                 mSignatureBitmapCanvas.drawPoint(x, y, mPaint);
+                if(isUndo){
+                    Paint2.add(new Paint2(x,y,mPaint));
+                }
             }
             expandDirtyRect(x, y);
         }
@@ -721,18 +729,52 @@ public class SignaturePadView extends View {
 
     public void undo(Callback callback){
         if(isUndo){
-            if(mBitmapCaches.size()>0){
-                callback.invoke("onUndo");
-                if(mBitmapCaches.size() < 2){
-                    this.clear();
-                    mBitmapCaches.clear(); //Keep stay with mSignaturePad.clear()
-                }else {
-                    mBitmapCaches.remove(mBitmapCaches.size()-1);
-                    this.setSignatureBitmap(mBitmapCaches.remove(mBitmapCaches.size()-1));
+            ArrayList<Paint2> list = Paint2.undo();
+            if(list.size()>0){
+                clearView();
+                for(int i=0;i<list.size();i++){
+                    mSignatureBitmapCanvas.drawPoint(list.get(i).x, list.get(i).y, list.get(i).paint);
                 }
+                callback.invoke("onUndo");
             }else {
                 callback.invoke("onClear");
             }
         }
+    }
+}
+
+class Paint2{
+    float x;
+    float y;
+    Paint paint;
+
+    private static ArrayList<Paint2> list = new ArrayList<>();
+    private static ArrayList<ArrayList<Paint2>> listall = new ArrayList<ArrayList<Paint2>>();
+    static void add(Paint2 paint){
+        list.add(paint);
+    }
+    static void save(){
+        listall.add(new ArrayList<Paint2>(list));
+        list.clear();
+    }
+
+    static ArrayList<Paint2> undo(){
+        return undo(listall.size()-1);
+    }
+
+    static ArrayList<Paint2> undo(int index){
+        listall.remove(index);
+        ArrayList<Paint2> list = new ArrayList<>();
+        for(int i=0;i<listall.size();i++){
+            list.addAll(listall.get(i));
+        }
+
+        return list;
+    }
+
+    Paint2(float x, float y, Paint paint){
+        this.x = x;
+        this.y = y;
+        this.paint = new Paint(paint);
     }
 }
