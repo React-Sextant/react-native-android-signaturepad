@@ -772,6 +772,11 @@ class Paint2{
         return list;
     }
 
+    static void clear(){
+        list = new ArrayList<>();
+        listall = new ArrayList<ArrayList<Paint2>>();
+    }
+
     Paint2(float x, float y, Paint paint){
         this.x = x;
         this.y = y;

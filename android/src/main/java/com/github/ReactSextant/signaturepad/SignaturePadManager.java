@@ -31,6 +31,7 @@ public class SignaturePadManager extends SimpleViewManager<SignaturePadView> {
     @Override
     public void onDropViewInstance(SignaturePadView signaturePad) {
         signaturePad = null;
+        Paint2.clear();
     }
 
     @ReactProp(name = "penMaxWidth")
