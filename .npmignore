@@ -1,3 +1,6 @@
-example/
-
 .npmignore
+.DS_Store
+.idea
+*.iml
+build/
+example/

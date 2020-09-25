@@ -5,25 +5,6 @@ Integrate https://github.com/gcacace/android-signaturepad into `react-native/and
 ```bash
 npm i react-native-android-signaturepad
 ```
-
-# Changelog
-
- - **1.0.4**
- 
-   1.添加 `erasing={boolean}`橡皮擦功能
-   
-   2.<del>添加`initBitmap={string}`初始化时会渲染传入的bitmap</del>
-
- - **2.0.3**
-  
-   1.添加`undo()`回退功能
-   
-   2.添加`undo`props控制回退功能的启用（默认为true，可能会占用一定内存）
-   
- - **Future**
- 
-   1.Add BackgroundImage support
-   
    
 # Demo
 
@@ -73,6 +54,25 @@ export default class extends React.Component {
 
 # Usage
 https://github.com/gcacace/android-signaturepad
+
+# Changelog
+
+ - **1.0.4**
+ 
+   1.添加 `erasing={boolean}`橡皮擦功能
+   
+   2.<del>添加`initBitmap={string}`初始化时会渲染传入的bitmap</del>
+
+ - **2.1.0**
+  
+   1.添加`undo()`回退功能
+   
+   2.添加`undo`props控制回退功能的启用（默认为true，可能会占用一定内存）
+   
+ - **Future**
+ 
+   1.Add BackgroundImage support
+   
 
 # 其他
 使用`<Image />`渲染bitmap记得添加前缀`'data:image/png;base64,'`以作为`base64`格式数据
