@@ -36,9 +36,7 @@ public class SignatureModule extends ReactContextBaseJavaModule {
 
                 try {
                     signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-                    if(signaturePad.mBitmapCaches!=null){
-                        signaturePad.mBitmapCaches.clear();
-                    }
+                    Paint2.clear();
                     signaturePad.clear();
                 } catch (Exception e) {
                     e.printStackTrace();

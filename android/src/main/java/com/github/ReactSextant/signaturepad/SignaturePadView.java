@@ -40,7 +40,8 @@ import java.util.stream.Collectors;
 
 public class SignaturePadView extends View {
 
-    private boolean isTouchMove = false;    //优化单击事件不触发onSigned()
+    private int touchOldval = 0;
+    private int touchNewval = 0;            //优化单击事件不触发onSigned()
     private boolean isErasing = false;      //橡皮擦模式
     static boolean  isUndo = true;          //是否允许回退
 
@@ -82,7 +83,6 @@ public class SignaturePadView extends View {
     private Paint mPaint = new Paint();
     private Bitmap mSignatureBitmap = null;
     private Canvas mSignatureBitmapCanvas = null;
-    public ArrayList<Bitmap> mBitmapCaches =  new ArrayList<Bitmap>();
 
     public SignaturePadView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -140,7 +140,7 @@ public class SignaturePadView extends View {
                         event);
 
                 if (isUndo) {
-                    Paint2.save(); //存储当前操作的Paint2.list
+                    Paint2.save(); //存储当前操作的Paint2.item
                 }
             }
 
@@ -219,7 +219,7 @@ public class SignaturePadView extends View {
     public void setUndo(boolean undo){
         isUndo = undo;
         if(!undo){
-            mBitmapCaches.clear();
+            Paint2.clear();
         }
     }
 
@@ -279,13 +279,12 @@ public class SignaturePadView extends View {
             ensureSignatureBitmap();
         }
 
-        setIsEmpty(true);
-
         invalidate();
     }
 
     public void clear() {
         this.clearView();
+        setIsEmpty(true);
         this.mHasEditState = true;
     }
 
@@ -299,6 +298,7 @@ public class SignaturePadView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                touchOldval = (int) (event.getX() + event.getY());
                 getParent().requestDisallowInterceptTouchEvent(true);
                 mPoints.clear();
                 if (mGestureDetector.onTouchEvent(event)) break;
@@ -308,14 +308,16 @@ public class SignaturePadView extends View {
                 if (mOnSignedListener != null) mOnSignedListener.onStartSigning();
 
             case MotionEvent.ACTION_MOVE:
-                isTouchMove = true;
-                resetDirtyRect(eventX, eventY);
-                addPoint(getNewPoint(eventX, eventY));
+                touchNewval = (int) (event.getX() + event.getY());
+                if(Math.abs(touchOldval-touchNewval)>0){
+                    resetDirtyRect(eventX, eventY);
+                    addPoint(getNewPoint(eventX, eventY));
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (isTouchMove) {
-                    isTouchMove = false;
+                touchNewval = (int) (event.getX() + event.getY());
+                if(Math.abs(touchOldval-touchNewval)>0){
                     resetDirtyRect(eventX, eventY);
                     addPoint(getNewPoint(eventX, eventY));
                     getParent().requestDisallowInterceptTouchEvent(true);
@@ -392,7 +394,7 @@ public class SignaturePadView extends View {
 
             Canvas canvas = new Canvas(mSignatureBitmap);
             canvas.drawBitmap(signature, drawMatrix, null);
-            setIsEmpty(false);
+            Paint2.add(signature);
             invalidate();
         }
         // View not laid out yet e.g. called from onCreate(), onRestoreInstanceState()...
@@ -502,6 +504,7 @@ public class SignaturePadView extends View {
     private boolean onDoubleClick() {
         if (mClearOnDoubleClick) {
             this.clearView();
+            setIsEmpty(true);
             return true;
         }
         return false;
@@ -732,11 +735,19 @@ public class SignaturePadView extends View {
             ArrayList<Paint2> list = Paint2.undo();
             if(list.size()>0){
                 clearView();
+                if(Paint2.sBitmap != null){
+                    setSignatureBitmap(Paint2.sBitmap);
+                }
                 for(int i=0;i<list.size();i++){
                     mSignatureBitmapCanvas.drawPoint(list.get(i).x, list.get(i).y, list.get(i).paint);
                 }
                 callback.invoke("onUndo");
+            }else if(Paint2.sBitmap != null){
+                clearView();
+                setSignatureBitmap(Paint2.sBitmap);
+                callback.invoke("onStartSigning");
             }else {
+                clearView();
                 callback.invoke("onClear");
             }
         }
@@ -748,11 +759,18 @@ class Paint2{
     float y;
     Paint paint;
 
+    static Bitmap sBitmap;
     private static ArrayList<Paint2> list = new ArrayList<>();
     private static ArrayList<ArrayList<Paint2>> listall = new ArrayList<ArrayList<Paint2>>();
+
+    static void add(Bitmap signature){
+        sBitmap = signature;
+    }
+
     static void add(Paint2 paint){
         list.add(paint);
     }
+
     static void save(){
         listall.add(new ArrayList<Paint2>(list));
         list.clear();
@@ -773,8 +791,9 @@ class Paint2{
     }
 
     static void clear(){
-        list = new ArrayList<>();
-        listall = new ArrayList<ArrayList<Paint2>>();
+        list.clear();
+        listall.clear();
+        sBitmap = null;
     }
 
     Paint2(float x, float y, Paint paint){
