@@ -44,6 +44,7 @@ public class SignaturePadView extends View {
     private int touchNewval = 0;            //优化单击事件不触发onSigned()
     private boolean isErasing = false;      //橡皮擦模式
     static boolean  isUndo = true;          //是否允许回退
+    float press = 1;
 
     //View state
     private List<TimedPoint> mPoints;
@@ -295,6 +296,7 @@ public class SignaturePadView extends View {
 
         float eventX = event.getX();
         float eventY = event.getY();
+        press = event.getPressure();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -657,7 +659,7 @@ public class SignaturePadView extends View {
     }
 
     private float strokeWidth(float velocity) {
-        return Math.max(mMaxWidth / (velocity + 1), mMinWidth);
+        return Math.max(mMaxWidth / (velocity + 1)*press, mMinWidth);
     }
 
     /**
