@@ -44,6 +44,7 @@ public class SignaturePadView extends View {
     private int touchNewval = 0;            //优化单击事件不触发onSigned()
     private boolean isErasing = false;      //橡皮擦模式
     static boolean  isUndo = true;          //是否允许回退
+    UndoList mUndoList;
     float press = 1;
 
     //View state
@@ -141,7 +142,7 @@ public class SignaturePadView extends View {
                         event);
 
                 if (isUndo) {
-                    Paint2.save(); //存储当前操作的Paint2.item
+                    mUndoList.save(); //存储当前操作的Paint2.item
                 }
             }
 
@@ -164,6 +165,8 @@ public class SignaturePadView extends View {
                 return onDoubleClick();
             }
         });
+
+        mUndoList = new UndoList();
     }
 
     @Override
@@ -220,7 +223,7 @@ public class SignaturePadView extends View {
     public void setUndo(boolean undo){
         isUndo = undo;
         if(!undo){
-            Paint2.clear();
+            mUndoList.clear();
         }
     }
 
@@ -396,7 +399,7 @@ public class SignaturePadView extends View {
 
             Canvas canvas = new Canvas(mSignatureBitmap);
             canvas.drawBitmap(signature, drawMatrix, null);
-            Paint2.add(signature);
+            mUndoList.add(signature);
             invalidate();
         }
         // View not laid out yet e.g. called from onCreate(), onRestoreInstanceState()...
@@ -617,12 +620,12 @@ public class SignaturePadView extends View {
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
                 mSignatureBitmapCanvas.drawPoint(x, y, paint);
                 if(isUndo){
-                    Paint2.add(new Paint2(x,y,paint));
+                    mUndoList.add(new UndoList.Paint2(x,y,paint));
                 }
             }else {
                 mSignatureBitmapCanvas.drawPoint(x, y, mPaint);
                 if(isUndo){
-                    Paint2.add(new Paint2(x,y,mPaint));
+                    mUndoList.add(new UndoList.Paint2(x,y,mPaint));
                 }
             }
             expandDirtyRect(x, y);
@@ -734,19 +737,19 @@ public class SignaturePadView extends View {
 
     public void undo(Callback callback){
         if(isUndo){
-            ArrayList<Paint2> list = Paint2.undo();
+            ArrayList<UndoList.Paint2> list = mUndoList.undo();
             if(list.size()>0){
                 clearView();
-                if(Paint2.sBitmap != null){
-                    setSignatureBitmap(Paint2.sBitmap);
+                if(mUndoList.sBitmap != null){
+                    setSignatureBitmap(mUndoList.sBitmap);
                 }
                 for(int i=0;i<list.size();i++){
                     mSignatureBitmapCanvas.drawPoint(list.get(i).x, list.get(i).y, list.get(i).paint);
                 }
                 callback.invoke("onUndo");
-            }else if(Paint2.sBitmap != null){
+            }else if(mUndoList.sBitmap != null){
                 clearView();
-                setSignatureBitmap(Paint2.sBitmap);
+                setSignatureBitmap(mUndoList.sBitmap);
                 callback.invoke("onStartSigning");
             }else {
                 clearView();
@@ -756,33 +759,42 @@ public class SignaturePadView extends View {
     }
 }
 
-class Paint2{
-    float x;
-    float y;
-    Paint paint;
+class UndoList{
 
-    static Bitmap sBitmap;
-    private static ArrayList<Paint2> list = new ArrayList<>();
-    private static ArrayList<ArrayList<Paint2>> listall = new ArrayList<ArrayList<Paint2>>();
+    static class Paint2{
+        float x;
+        float y;
+        Paint paint;
 
-    static void add(Bitmap signature){
+        Paint2(float x, float y, Paint paint){
+            this.x = x;
+            this.y = y;
+            this.paint = new Paint(paint);
+        }
+    }
+
+    Bitmap sBitmap;
+
+    private ArrayList<Paint2> list = new ArrayList<>();
+    private ArrayList<ArrayList<Paint2>> listall = new ArrayList<ArrayList<Paint2>>();
+    void add(Bitmap signature){
         sBitmap = signature;
     }
 
-    static void add(Paint2 paint){
+    void add(Paint2 paint){
         list.add(paint);
     }
 
-    static void save(){
+    void save(){
         listall.add(new ArrayList<Paint2>(list));
         list.clear();
     }
 
-    static ArrayList<Paint2> undo(){
+    ArrayList<Paint2> undo(){
         return undo(listall.size()-1);
     }
 
-    static ArrayList<Paint2> undo(int index){
+    ArrayList<Paint2> undo(int index){
         listall.remove(index);
         ArrayList<Paint2> list = new ArrayList<>();
         for(int i=0;i<listall.size();i++){
@@ -792,15 +804,9 @@ class Paint2{
         return list;
     }
 
-    static void clear(){
+    void clear(){
         list.clear();
         listall.clear();
         sBitmap = null;
-    }
-
-    Paint2(float x, float y, Paint paint){
-        this.x = x;
-        this.y = y;
-        this.paint = new Paint(paint);
     }
 }
