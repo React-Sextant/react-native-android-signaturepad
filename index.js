@@ -10,13 +10,34 @@ const SignatureView = requireNativeComponent('SignaturePad', SignaturePad, {
 const SignatureModule = NativeModules.SignatureModule;
 
 export default class SignaturePad extends React.PureComponent {
-    static defaultProps: Object = {
+    static defaultProps = {
         _signaturePadHandle: Number,
         undo:true,
-        penColor: "#000000"
+        penColor: "#000000",
+        bitmap:undefined
     };
 
-    _setReference = (ref: ?Object) => {
+    constructor(props){
+        super(props);
+        this.state={
+            isLayout:false
+        };
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(nextProps.bitmap !== this.props.bitmap && this.state.isLayout){
+            this.setSignatureBitmap(nextProps.bitmap)
+        }
+    }
+
+    onLayout=()=>{
+        if(!this.state.isLayout){
+            this.setState({isLayout:true});
+            this.setSignatureBitmap(this.props.bitmap)
+        }
+    };
+
+    _setReference = (ref) => {
         if (ref) {
             this._signaturePadHandle = findNodeHandle(ref);
         } else {
@@ -33,7 +54,9 @@ export default class SignaturePad extends React.PureComponent {
     };
 
     setSignatureBitmap=(bitmap)=>{
-        SignatureModule.setSignatureBitmap(this._signaturePadHandle, bitmap)
+        if(typeof bitmap === "string"){
+            SignatureModule.setSignatureBitmap(this._signaturePadHandle, bitmap)
+        }
     };
 
     getTransparentSignatureBitmap=async ()=>{
@@ -53,6 +76,7 @@ export default class SignaturePad extends React.PureComponent {
             <SignatureView
                 ref={this._setReference}
                 {...this.props}
+                onLayout={this.onLayout}
                 penColor={processColor(normalizeColor(this.props.penColor))}
             />
         )

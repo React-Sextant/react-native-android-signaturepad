@@ -38,6 +38,7 @@ export default class extends React.Component {
                     penMaxWidth={7}
                     penMinWidth={3}
                     undo={true}
+                    bitmap={"base64"}
                     erasing={this.state.erasing}
                     onChange={(event)=>{
                         let message = event.nativeEvent.message;
@@ -61,14 +62,16 @@ https://github.com/gcacace/android-signaturepad
  
    1.添加 `erasing={boolean}`橡皮擦功能
    
-   2.<del>添加`initBitmap={string}`初始化时会渲染传入的bitmap</del>
-
  - **2.1.0**
   
    1.添加`undo()`回退功能
    
    2.添加`undo`props控制回退功能的启用（默认为true，可能会占用一定内存）
    
+ - **2.2.0**
+ 
+   1.添加`bitmap={string}`初始化时会渲染传入的bitmap
+ 
  - **Future**
  
    1.Add BackgroundImage support
