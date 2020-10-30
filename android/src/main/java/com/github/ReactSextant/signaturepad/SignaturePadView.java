@@ -43,7 +43,7 @@ public class SignaturePadView extends View {
     private int touchOldval = 0;
     private int touchNewval = 0;            //优化单击事件不触发onSigned()
     private boolean isErasing = false;      //橡皮擦模式
-    static boolean  isUndo = true;          //是否允许回退
+    private boolean  isUndo = true;          //是否允许回退
     UndoList mUndoList;
     float press = 1;
 
@@ -218,7 +218,7 @@ public class SignaturePadView extends View {
     /**
      * Support undo.
      *
-     * @param undo the static.isUndo enable.
+     * @param undo the isUndo enable.
      */
     public void setUndo(boolean undo){
         isUndo = undo;
@@ -289,6 +289,7 @@ public class SignaturePadView extends View {
     public void clear() {
         this.clearView();
         setIsEmpty(true);
+        mUndoList.clear();
         this.mHasEditState = true;
     }
 

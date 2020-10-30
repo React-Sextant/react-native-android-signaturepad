@@ -36,7 +36,6 @@ public class SignatureModule extends ReactContextBaseJavaModule {
 
                 try {
                     signaturePad = (SignaturePadView) nativeViewHierarchyManager.resolveView(viewTag);
-                    Paint2.clear();
                     signaturePad.clear();
                 } catch (Exception e) {
                     e.printStackTrace();

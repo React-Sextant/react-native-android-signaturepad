@@ -68,7 +68,7 @@ https://github.com/gcacace/android-signaturepad
    
    2.添加`undo`props控制回退功能的启用（默认为true，可能会占用一定内存）
    
- - **2.2.0**
+ - **2.2.1**
  
    1.添加`bitmap={string}`初始化时会渲染传入的bitmap
  
